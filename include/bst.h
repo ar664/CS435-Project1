@@ -18,7 +18,7 @@ struct _BST
 };
 
 #define BST_MAX_NODES 1000
-Node nodeList[BST_MAX_NODES] = {0};
+static Node nodeList[BST_MAX_NODES] = {0};
 
 void InsertRec(Node* node, int value);
 void DeleteRec(Node* node, int value);

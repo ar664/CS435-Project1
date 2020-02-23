@@ -10,20 +10,20 @@ LDIR=lib
 LIBS=-lm
 
 #H files go here
-_DEPS = 
+_DEPS = node.h bst.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 #Target object files go here (There basically the c files)
-_OBJ = main.o
+_OBJ = main.o bst.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 
 $(ODIR)/%.o : $(SDIR)/%.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) -g -c -o $@ $< $(CFLAGS)
 
 #The end program results name
 main : $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+	$(CC) -g -o $@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean
 

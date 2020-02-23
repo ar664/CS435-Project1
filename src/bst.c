@@ -1,9 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "bst.h"
 
 BST* BSTAllocateRec()
 {
-    BST* bst = malloc(sizeof(BST));
+    BST* bst = (BST*) malloc(sizeof(BST));
     bst->root = nodeList;
     bst->currentNode = bst->root;
     bst->Insert = InsertRec;
@@ -17,7 +18,7 @@ BST* BSTAllocateRec()
 
 BST* BSTAllocateIter()
 {
-    BST* bst = malloc(sizeof(BST));
+    BST* bst = (BST*) malloc(sizeof(BST));
     bst->root = nodeList;
     bst->currentNode = bst->root;
     bst->Insert = InsertIter;
