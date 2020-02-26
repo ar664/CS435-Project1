@@ -75,7 +75,7 @@ void printArray(int* arr, int n)
 
 int main(int argc, char** argv)
 {
-    int* randomArray, *sortedArray;
+    int* randomArray, *sortedArray, *bstSorted;
     int n = 100, i;
     BST* bstIter, *bstRec;
     Node* travIter, *travRec;
@@ -114,6 +114,15 @@ int main(int argc, char** argv)
     }
 
     printf("Left Most Node: %d or %d\n", travIter->value, travRec->value);
+
+    bstSorted = sort(randomArray, n);
+
+    printf("BST sort: ");
+    for(i = 0; i < n; i++)
+    {
+        printf("%d ", bstSorted[i]);
+    }
+    printf("\n");
 
 	return 0;
 }
