@@ -3,6 +3,10 @@
 
 typedef struct _Node Node;
 
+/**
+ * @brief Node structure for a BST.
+ * 
+ */
 struct _Node
 {
     Node*       parent;

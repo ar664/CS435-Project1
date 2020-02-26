@@ -12,6 +12,10 @@ typedef enum
 
 typedef struct _BST BST;
 
+/**
+ * @brief BST struct which is used to reference the BST and call it's functions.
+ * 
+ */
 struct _BST
 {
     Node*       root;
@@ -37,7 +41,18 @@ Node* FindPrevIter(BST* bst, Node* node);
 Node* FindMinIter(Node* node);
 Node* FindMaxIter(Node* node);
 
+/**
+ * @brief Allocates a BST using Recursive functions.
+ * 
+ * @return BST* 
+ */
 BST* BSTAllocateRec();
+
+/**
+ * @brief Allocates a BST using Iterative functions.
+ * 
+ * @return BST* 
+ */
 BST* BSTAllocateIter();
 
 

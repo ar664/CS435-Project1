@@ -31,12 +31,22 @@ BST* BSTAllocateIter()
 
 void InsertRec(Node* parent, Node* node, int value)
 {
+    //Error Checking
+    if(parent == NULL || value = 0)
+    {
+        printf("InsertRec: Either NULL parent or 0 value given.\n");
+        return;
+    }
+
+    //Allocate a node for inserting.
     if(node == NULL)
     {
         node = (Node*) calloc(1, sizeof(Node));
         node->value = value;
     }
 
+    //Insert a root if there is no value for it.
+    //Otherwise insert into left & right respectively
     if(parent->value == 0)
     {
         parent->value = value;
@@ -76,9 +86,11 @@ Node* DeleteRec(BST* bst, Node* node, int value)
 
     if(node == NULL || node->value == 0)
     {
-        printf("Value not found during delete: %d\n", value);
-    } 
-    else if(node->value == value)
+        printf("DeleteRec: Value not found: %d\n", value);
+        return NULL;
+    }
+    
+    if(node->value == value)
     {
         if(node->leftChild == NULL)
         {
@@ -117,22 +129,27 @@ Node* DeleteRec(BST* bst, Node* node, int value)
     return node;
 }
 
+/**
+ * @brief Helper function for finding the next node by going up the BST.
+ * 
+ * @param node  The node needing to be traversed.
+ * @return Node* 
+ */
 Node* TraverseUpNext(Node* node)
 {
     if(node->parent == NULL)
     {
         return node;
     }
+
+    //If node is leftChild, return it's parent.
+    if(node->parent->value > node->value)
+    {
+        return node->parent;
+    }
     else
     {
-        if(node->parent->value > node->value)
-        {
-            return node->parent;
-        }
-        else
-        {
-            return TraverseUpNext(node->parent);
-        }
+        return TraverseUpNext(node->parent);
     }
     
 }
@@ -140,16 +157,23 @@ Node* TraverseUpNext(Node* node)
 Node* FindNextRec(BST* bst, Node* node)
 {
     Node* parentNode;
+
+    //Error Checking
     if(node == NULL || bst == NULL)
     {
         printf("FindNextRec: bst or node given is null\n");
         return NULL;
     }
+
+    //Check if we cannot go any further right.
     if(FindMaxRec(bst->root) == node)
     {
         printf("FindNextRec: Already at rightest node\n");
         return NULL;
     }
+    
+    //The next node is always the minimum value of the right subtree
+    //or a right traversal up.
     if(node->rightChild)
     {
         return FindMinRec(node->rightChild);
@@ -165,33 +189,49 @@ Node* FindNextRec(BST* bst, Node* node)
     
 }
 
+/**
+ * @brief Helper function for finding the previous node by going up the BST.
+ * 
+ * @param node The node needing to be traversed.
+ * @return Node* 
+ */
 Node* TraverseUpPrev(Node* node)
 {
     if(node->parent == NULL)
     {
         return node;
     }
+
+    //If node is rightChild, return it's parent.
+    if(node->parent->value < node->value)
+    {
+        return node->parent;
+    }
     else
     {
-        if(node->parent->value < node->value)
-        {
-            return node->parent;
-        }
-        else
-        {
-            return TraverseUpPrev(node->parent);
-        }
+        return TraverseUpPrev(node->parent);
     }
     
 }
 
 Node* FindPrevRec(BST* bst, Node* node)
 {
-    if(FindMinRec(bst->root) == node)
+    //Error Checking
+    if(bst == NULL || node == NULL)
     {
-        printf("FindPrev: Already at leftest node\n");
+        printf("FindPrevRec: bst or node given is null\n");
         return NULL;
     }
+
+    //Check if we cannot go any further left.
+    if(FindMinRec(bst->root) == node)
+    {
+        printf("FindPrevRec: Already at leftest node\n");
+        return NULL;
+    }
+    
+    //The previous node is always the max of the left subtree
+    //or a left traversal up.
     if(node->leftChild)
     {
         return FindMaxRec(node->leftChild);
@@ -212,7 +252,9 @@ Node* FindMinRec(Node* node)
     if(node == NULL)
     {
         return NULL;
-    } 
+    }
+
+    //Call this function until node has no more left children, then return.
     if(node->leftChild == NULL)
     {
         return node;
@@ -229,7 +271,9 @@ Node* FindMaxRec(Node* node)
     {
         return NULL;
     } 
-    else if (node->rightChild == NULL)
+    
+    //Call this function until node has no more right children, then return.
+    if (node->rightChild == NULL)
     {
         return node;
     } 
@@ -244,14 +288,16 @@ void InsertIter(Node* root, Node* node, int value)
 {
     Node* parent;
     int done = 0;
-
     parent = root;
-    if(parent == NULL)
+
+    //Error Checking
+    if(parent == NULL || value == 0)
     {
-        printf("Error for InsertIter you must give root as first variable\n");
+        printf("InsertIter: Either NULL parent or 0 value given.\n");
         return;
     }
 
+    //Assign root value
     if(parent->value == 0)
     {
         parent->value = value;
@@ -262,7 +308,8 @@ void InsertIter(Node* root, Node* node, int value)
         node = calloc(1, sizeof(Node));
         node->value = value;
 
-        parent = root;
+        //Check parent if > or <.
+        //Go into right/left children as necessary.
         while(!done)
         {
             if(parent->value > value)
@@ -291,7 +338,7 @@ void InsertIter(Node* root, Node* node, int value)
                 }
             } else
             {
-                printf("Duplicate value given, did not insert value: %d\n", value);
+                printf("InsertIter: Duplicate value given, did not insert value: %d\n", value);
                 done = 1;
             }
             
@@ -339,7 +386,7 @@ Node* DeleteIter(BST* bst, Node* node, int value)
             node = node->leftChild;
         }
     }
-    printf("Value not found during delete: %d\n", value);
+    printf("DeleteIter: Value not found: %d\n", value);
     return NULL;
 }
 
@@ -347,20 +394,28 @@ Node* FindNextIter(BST* bst, Node* node)
 {
     Node* next;
     next = node;
+
+    //Error Checking
     if(bst == NULL || node == NULL)
     {
         printf("FindNextIter: bst or node given is null\n");
         return NULL;
     }
+
+    //Check if we cannot go any further right.
     if(FindMaxIter(bst->root) == node)
     {
         printf("FindNextIter: Already at rightest node\n");
         return NULL;
     }
+
+    //The next node is always the min of the right subtree.
     if(next->rightChild)
     {
         return FindMinIter(next->rightChild);
     }
+
+    //or a right traversal up.
     while(next->parent->value < next->value)
     {
         next = next->parent;
@@ -372,15 +427,28 @@ Node* FindPrevIter(BST* bst, Node* node)
 {
     Node* prev;
     prev = node;
+
+    //Error Checking
+    if(bst == NULL || node == NULL)
+    {
+        printf("FindNextIter: bst or node given is null\n");
+        return NULL;
+    }
+
+    //Check if we cannot go any further left.
     if(FindMinIter(bst->root) == node)
     {
         printf("FindPrev: Already at leftest node\n");
         return NULL;
     }
+
+    //The previous node is always the max of the left subtree.
     if(prev->leftChild)
     {
         return FindMaxIter(prev->leftChild);
     }
+
+    //or a left traversal up.
     while(prev->parent->value > prev->value)
     {
         prev = prev->parent;
@@ -390,23 +458,27 @@ Node* FindPrevIter(BST* bst, Node* node)
 
 Node* FindMinIter(Node* node)
 {
-    Node* min;
-    min = node;
-    while(min->leftChild)
+    Node* minNode;
+    minNode = node;
+
+    //Keep setting minNode to left child until it doesn't have one.
+    while(minNode->leftChild)
     {
-        min = min->leftChild;
+        minNode = min->leftChild;
     }
-    return min;
+    return minNode;
 }
 
 Node* FindMaxIter(Node* node)
 {
-    Node* max;
-    max = node;
-    while(max->rightChild)
+    Node* maxNode;
+    maxNode = node;
+
+    //Keep setting maxNode to right child until it doesn't have one.
+    while(maxNode->rightChild)
     {
-        max = max->rightChild;
+        maxNode = max->rightChild;
     }
-    return max;
+    return maxNode;
 }
 
