@@ -23,15 +23,22 @@ int* sort(int* input, int n)
     {
         sorted[i] = current->value;
         i++;
-        current = bst->FindNext(current);
+        current = bst->FindNext(bst, current);
     }
     return sorted;
 }
 
 int* getRandomArray(int n)
 {
-    int* randArray = malloc(n*sizeof(int));
+    int* randArray;
     int i, randValue;
+    if(n > K)
+    {
+        printf("Max n can be is: %d\n", K);
+        return NULL;
+    }
+    randArray = malloc(n*sizeof(int));
+
     for(i = 0; i < n; i++)
     {
         randValue = rand() % K;
@@ -70,6 +77,8 @@ int main(int argc, char** argv)
 {
     int* randomArray, *sortedArray;
     int n = 100, i;
+    BST* bstIter, *bstRec;
+    Node* travIter, *travRec;
     srand(time(0));
 
     randomArray = getRandomArray(n);
@@ -77,6 +86,34 @@ int main(int argc, char** argv)
 
     printArray(randomArray, n);
     printArray(sortedArray, n);
+
+    bstIter = BSTAllocateIter();
+    bstRec = BSTAllocateRec();
+    printf("bstIter root is %d\n", bstIter->root->value);
+
+    for(i = 0; i < n; i++)
+    {
+        bstIter->Insert(bstIter->root, NULL, randomArray[i]);
+        bstRec->Insert(bstRec->root, NULL, randomArray[i]);
+    }
+    travIter = bstIter->FindMin(bstIter->root);
+    travRec = bstRec->FindMin(bstRec->root);
+
+    for(i = 0; i < n-1; i++)
+    {
+        if(travIter && travRec)
+        {
+            printf("TravIter: %d | TravRec: %d\n", travIter->value, travRec->value);
+        }
+        travIter = bstIter->FindNext(bstIter, travIter);
+        travRec = bstRec->FindNext(bstRec, travRec);
+    }
+
+    if(travIter && travRec)
+    {
+        printf("Right Most Node: %d or %d\n", travIter->value, travRec->value);
+    }
+    
 
 	return 0;
 }

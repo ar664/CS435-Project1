@@ -19,7 +19,7 @@ BST* BSTAllocateRec()
 BST* BSTAllocateIter()
 {
     BST* bst = (BST*) malloc(sizeof(BST));
-    bst->root = (Node*) malloc(sizeof(Node));
+    bst->root = (Node*) calloc(1, sizeof(Node));
     bst->Insert = InsertIter;
     bst->Delete = DeleteIter;
     bst->FindNext = FindNextIter;
@@ -34,42 +34,39 @@ void InsertRec(Node* parent, Node* node, int value)
     if(node == NULL)
     {
         node = (Node*) calloc(1, sizeof(Node));
+        node->value = value;
     }
 
     if(parent->value == 0)
     {
         parent->value = value;
+        printf("InsertRec: Root is %d\n", value);
         free(node);
         node = NULL;
     }
-    else if(node->value == 0)
+    else if(node->value > parent->value)
     {
-        if(parent != NULL)
+        if(parent->rightChild)
         {
-            if(parent->value > value)
-            {
-                parent->leftChild = node;
-            }
-            else
-            {
-                parent->rightChild = node;
-            }
+            InsertRec(parent->rightChild, node, value);
         }
-
-        node->parent = parent;
-        node->value = value;
-    } 
-    else if(node->value < value)
+        else
+        {
+            parent->rightChild = node;
+            node->parent = parent;
+        }
+    }
+    else if(node->value < parent->value)
     {
-        InsertRec(node, node->rightChild, value);
-    } 
-    else if(node->value > value)
-    {
-        InsertRec(node, node->leftChild, value);
-    } 
-    else
-    {
-        printf("Duplicate value given, did not insert value: %d\n", value);
+        if(parent->leftChild)
+        {
+            InsertRec(parent->leftChild, node, value);
+        }
+        else
+        {
+            parent->leftChild = node;
+            node->parent = parent;
+        }
     }
 }
 
@@ -120,7 +117,7 @@ Node* DeleteRec(BST* bst, Node* node, int value)
     return node;
 }
 
-Node* TraverseUp(Node* node)
+Node* TraverseUpNext(Node* node)
 {
     if(node->parent == NULL)
     {
@@ -134,22 +131,32 @@ Node* TraverseUp(Node* node)
         }
         else
         {
-            return TraverseUp(node->parent);
+            return TraverseUpNext(node->parent);
         }
     }
     
 }
 
-Node* FindNextRec(Node* node)
+Node* FindNextRec(BST* bst, Node* node)
 {
     Node* parentNode;
+    if(node == NULL || bst == NULL)
+    {
+        printf("FindNextRec: bst or node given is null\n");
+        return NULL;
+    }
+    if(FindMaxRec(bst->root) == node)
+    {
+        printf("FindNextRec: Already at rightest node\n");
+        return NULL;
+    }
     if(node->rightChild)
     {
         return FindMinRec(node->rightChild);
     }
     else if(node->parent)
     {
-        return TraverseUp(node);
+        return TraverseUpNext(node);
     }
     else
     {
@@ -158,8 +165,33 @@ Node* FindNextRec(Node* node)
     
 }
 
-Node* FindPrevRec(Node* node)
+Node* TraverseUpPrev(Node* node)
 {
+    if(node->parent == NULL)
+    {
+        return node;
+    }
+    else
+    {
+        if(node->parent->value < node->value)
+        {
+            return node->parent;
+        }
+        else
+        {
+            return TraverseUpPrev(node->parent);
+        }
+    }
+    
+}
+
+Node* FindPrevRec(BST* bst, Node* node)
+{
+    if(FindMinRec(bst->root) == node)
+    {
+        printf("FindPrev: Already at leftest node\n");
+        return NULL;
+    }
     if(node->leftChild)
     {
         return FindMaxRec(node->leftChild);
@@ -168,7 +200,7 @@ Node* FindPrevRec(Node* node)
     {
         if(node->parent->value < node->value)
         {
-            return node->parent->parent;
+            return FindPrevRec(bst, node->parent);
         }
         return node->parent;
     }
@@ -185,7 +217,7 @@ Node* FindMinRec(Node* node)
     {
         return NULL;
     } 
-    else if(node->leftChild == NULL)
+    if(node->leftChild == NULL)
     {
         return node;
     } 
@@ -217,6 +249,7 @@ void InsertIter(Node* root, Node* node, int value)
     Node* parent;
     int done = 0;
 
+    parent = root;
     if(parent == NULL)
     {
         printf("Error for InsertIter you must give root as first variable\n");
@@ -226,6 +259,7 @@ void InsertIter(Node* root, Node* node, int value)
     if(parent->value == 0)
     {
         parent->value = value;
+        printf("InsertIter: Root is %d\n", value);
     }
     else
     {
@@ -282,7 +316,7 @@ Node* DeleteIter(BST* bst, Node* node, int value)
                 looseRight = node->rightChild;
                 if(looseRight->leftChild)
                 {
-                    prev = FindPrevIter(node);
+                    prev = FindPrevIter(bst, node);
                     prev->rightChild = looseRight;
                 } 
                 looseRight->leftChild = node->leftChild;
@@ -293,7 +327,7 @@ Node* DeleteIter(BST* bst, Node* node, int value)
                 looseLeft = node->leftChild;
                 if(looseLeft->rightChild)
                 {
-                    next = FindNextIter(node);
+                    next = FindNextIter(bst, node);
                     next->leftChild = looseLeft;
                 }
                 looseLeft->rightChild = node->rightChild;
@@ -313,10 +347,20 @@ Node* DeleteIter(BST* bst, Node* node, int value)
     return NULL;
 }
 
-Node* FindNextIter(Node* node)
+Node* FindNextIter(BST* bst, Node* node)
 {
     Node* next;
     next = node;
+    if(bst == NULL || node == NULL)
+    {
+        printf("FindNextIter: bst or node given is null\n");
+        return NULL;
+    }
+    if(FindMaxIter(bst->root) == node)
+    {
+        printf("FindNextIter: Already at rightest node\n");
+        return NULL;
+    }
     if(next->rightChild)
     {
         return FindMinIter(next->rightChild);
@@ -325,13 +369,18 @@ Node* FindNextIter(Node* node)
     {
         next = next->parent;
     }
-    return next;
+    return next->parent;
 }
 
-Node* FindPrevIter(Node* node)
+Node* FindPrevIter(BST* bst, Node* node)
 {
     Node* prev;
     prev = node;
+    if(FindMinIter(bst->root) == node)
+    {
+        printf("FindPrev: Already at leftest node\n");
+        return NULL;
+    }
     if(prev->leftChild)
     {
         return FindMaxIter(prev->leftChild);
@@ -345,7 +394,8 @@ Node* FindPrevIter(Node* node)
 
 Node* FindMinIter(Node* node)
 {
-    Node* min = node;
+    Node* min;
+    min = node;
     while(min->leftChild)
     {
         min = min->leftChild;
@@ -355,7 +405,8 @@ Node* FindMinIter(Node* node)
 
 Node* FindMaxIter(Node* node)
 {
-    Node* max = node;
+    Node* max;
+    max = node;
     while(max->rightChild)
     {
         max = max->rightChild;

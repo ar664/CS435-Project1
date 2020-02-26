@@ -15,26 +15,25 @@ typedef struct _BST BST;
 struct _BST
 {
     Node*       root;
-    int         direction;
     void        (*Insert)(Node* root, Node* node, int value);
     Node*       (*Delete)(BST* bst, Node* node, int value);
-    Node*       (*FindNext)(Node* node);
-    Node*       (*FindPrev)(Node* node);
+    Node*       (*FindNext)(BST* bst, Node* node);
+    Node*       (*FindPrev)(BST* bst, Node* node);
     Node*       (*FindMin)(Node* node);
     Node*       (*FindMax)(Node* node);
 };
 
 void InsertRec(Node* parent, Node* node, int value);
 Node* DeleteRec(BST* bst, Node* node, int value);
-Node* FindNextRec(Node* node);
-Node* FindPrevRec(Node* node);
+Node* FindNextRec(BST* bst, Node* node);
+Node* FindPrevRec(BST* bst, Node* node);
 Node* FindMinRec(Node* node);
 Node* FindMaxRec(Node* node);
 
 void InsertIter(Node* root, Node* node, int value);
 Node* DeleteIter(BST* bst, Node* node, int value);
-Node* FindNextIter(Node* node);
-Node* FindPrevIter(Node* node);
+Node* FindNextIter(BST* bst, Node* node);
+Node* FindPrevIter(BST* bst, Node* node);
 Node* FindMinIter(Node* node);
 Node* FindMaxIter(Node* node);
 
