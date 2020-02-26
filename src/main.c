@@ -101,19 +101,19 @@ int main(int argc, char** argv)
 
     for(i = 0; i < n-1; i++)
     {
-        if(travIter && travRec)
-        {
-            printf("TravIter: %d | TravRec: %d\n", travIter->value, travRec->value);
-        }
         travIter = bstIter->FindNext(bstIter, travIter);
         travRec = bstRec->FindNext(bstRec, travRec);
     }
 
-    if(travIter && travRec)
-    {
-        printf("Right Most Node: %d or %d\n", travIter->value, travRec->value);
-    }
+    printf("Right Most Node: %d or %d\n", travIter->value, travRec->value);
     
+    for(i = 0; i < n-1; i++)
+    {
+        travIter = bstIter->FindPrev(bstIter, travIter);
+        travRec = bstRec->FindPrev(bstRec, travRec);
+    }
+
+    printf("Left Most Node: %d or %d\n", travIter->value, travRec->value);
 
 	return 0;
 }

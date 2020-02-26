@@ -198,11 +198,7 @@ Node* FindPrevRec(BST* bst, Node* node)
     }
     else if(node->parent)
     {
-        if(node->parent->value < node->value)
-        {
-            return FindPrevRec(bst, node->parent);
-        }
-        return node->parent;
+        return TraverseUpPrev(node);
     }
     else
     {
@@ -389,7 +385,7 @@ Node* FindPrevIter(BST* bst, Node* node)
     {
         prev = prev->parent;
     }
-    return prev;
+    return prev->parent;
 }
 
 Node* FindMinIter(Node* node)
