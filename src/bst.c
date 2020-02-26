@@ -107,15 +107,15 @@ Node* DeleteRec(BST* bst, Node* node, int value)
         }
         temp = FindMinRec(node->leftChild);
         node->value = temp->value;
-        node->rightChild = DeleteRec(node->rightChild, node->value);
+        node->rightChild = DeleteRec(bst, node->rightChild, node->value);
     } 
     else if(node->value > value)
     {
-        node->leftChild = DeleteRec(node->leftChild, value);
+        node->leftChild = DeleteRec(bst, node->leftChild, value);
     }
     else
     {
-        node->rightChild = DeleteRec(node->rightChild, value);
+        node->rightChild = DeleteRec(bst, node->rightChild, value);
     }
     return node;
 }
@@ -272,7 +272,7 @@ void InsertIter(Node* root, Node* node, int value)
 
 Node* DeleteIter(BST* bst, Node* node, int value)
 {
-    Node* looseRight, looseLeft, prev, next;
+    Node* looseRight, *looseLeft, *prev, *next;
     while(node != NULL)
     {
         if(node->value == value)
@@ -304,9 +304,9 @@ Node* DeleteIter(BST* bst, Node* node, int value)
         {
             node = node->rightChild;
         }
-        else if(ndoe->value > value)
+        else if(node->value > value)
         {
-            node = node->leftChild
+            node = node->leftChild;
         }
     }
     printf("Value not found during delete: %d\n", value);
@@ -315,7 +315,8 @@ Node* DeleteIter(BST* bst, Node* node, int value)
 
 Node* FindNextIter(Node* node)
 {
-    Node* next = node;
+    Node* next;
+    next = node;
     if(next->rightChild)
     {
         return FindMinIter(next->rightChild);
@@ -324,21 +325,22 @@ Node* FindNextIter(Node* node)
     {
         next = next->parent;
     }
-    return NULnext;
+    return next;
 }
 
 Node* FindPrevIter(Node* node)
 {
-    Node* prev = node;
+    Node* prev;
+    prev = node;
     if(prev->leftChild)
     {
         return FindMaxIter(prev->leftChild);
     }
-    while(next->parent->value > next->value)
+    while(prev->parent->value > prev->value)
     {
-        next = next->parent;
+        prev = prev->parent;
     }
-    return next;
+    return prev;
 }
 
 Node* FindMinIter(Node* node)
