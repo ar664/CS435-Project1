@@ -3,41 +3,43 @@
 
 #include "node.h"
 
+typedef enum
+{
+    LEFT    =   -1,
+    UP      =    0,
+    RIGHT   =    1
+}Dir;
+
 typedef struct _BST BST;
 
 struct _BST
 {
     Node*       root;
-    Node*       currentNode;
-    void        (*Insert)(Node* node, int value);
-    void        (*Delete)(Node* node, int value);
-    void        (*FindNext)(Node* node);
-    void        (*FindPrev)(Node* node);
-    void        (*FindMin)(Node* node);
-    void        (*FindMax)(Node* node);
+    int         direction;
+    void        (*Insert)(Node* root, Node* node, int value);
+    Node*       (*Delete)(BST* bst, Node* node, int value);
+    Node*       (*FindNext)(Node* node);
+    Node*       (*FindPrev)(Node* node);
+    Node*       (*FindMin)(Node* node);
+    Node*       (*FindMax)(Node* node);
 };
 
-#define BST_MAX_NODES 1000
-static Node nodeList[BST_MAX_NODES] = {0};
+void InsertRec(Node* parent, Node* node, int value);
+Node* DeleteRec(BST* bst, Node* node, int value);
+Node* FindNextRec(Node* node);
+Node* FindPrevRec(Node* node);
+Node* FindMinRec(Node* node);
+Node* FindMaxRec(Node* node);
 
-void InsertRec(Node* node, int value);
-void DeleteRec(Node* node, int value);
-void FindNextRec(Node* node);
-void FindPrevRec(Node* node);
-void FindMinRec(Node* node);
-void FindMaxRec(Node* node);
-
-void InsertIter(Node* node, int value);
-void DeleteIter(Node* node, int value);
-void FindNextIter(Node* node);
-void FindPrevIter(Node* node);
-void FindMinIter(Node* node);
-void FindMaxIter(Node* node);
+void InsertIter(Node* root, Node* node, int value);
+Node* DeleteIter(BST* bst, Node* node, int value);
+Node* FindNextIter(Node* node);
+Node* FindPrevIter(Node* node);
+Node* FindMinIter(Node* node);
+Node* FindMaxIter(Node* node);
 
 BST* BSTAllocateRec();
 BST* BSTAllocateIter();
-
-
 
 
 #endif
