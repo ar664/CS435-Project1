@@ -22,7 +22,7 @@ int* sort(int* input, int n)
     }
 
     //Allocate memory
-    sort = malloc(n*sizeof(int));
+    sorted = malloc(n*sizeof(int));
     bst = BSTAllocateIter();
 
     //Insert array into BST

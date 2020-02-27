@@ -1,54 +1,58 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "bst.h"
+#include "bbst.h"
 
-void InsertRec(Node* parent, Node* node, int value);
-Node* DeleteRec(BST* bst, Node* node, int value);
-Node* FindNextRec(BST* bst, Node* node);
-Node* FindPrevRec(BST* bst, Node* node);
-Node* FindMinRec(Node* node);
-Node* FindMaxRec(Node* node);
+//Rotating based on node & node->parent
+void RotateLeft(Node* node);
+void RotateRight(Node* node);
 
-void InsertIter(Node* root, Node* node, int value);
-Node* DeleteIter(BST* bst, Node* node, int value);
-Node* FindNextIter(BST* bst, Node* node);
-Node* FindPrevIter(BST* bst, Node* node);
-Node* FindMinIter(Node* node);
-Node* FindMaxIter(Node* node);
+void BalInsertRec(Node* parent, Node* node, int value);
+Node* BalDeleteRec(BBST* bbst, Node* node, int value);
+Node* BalFindNextRec(BBST* bbst, Node* node);
+Node* BalFindPrevRec(BBST* bbst, Node* node);
+Node* BalFindMinRec(Node* node);
+Node* BalFindMaxRec(Node* node);
 
-BST* BSTAllocateRec()
+void BalInsertIter(Node* root, Node* node, int value);
+Node* BalDeleteIter(BBST* bbst, Node* node, int value);
+Node* BalFindNextIter(BBST* bbst, Node* node);
+Node* BalFindPrevIter(BBST* bbst, Node* node);
+Node* BalFindMinIter(Node* node);
+Node* BalFindMaxIter(Node* node);
+
+BBST* BBSTAllocateRec()
 {
-    BST* bst = (BST*) malloc(sizeof(BST));
-    bst->root = (Node*) calloc(1, sizeof(Node));
-    bst->Insert = InsertRec;
-    bst->Delete = DeleteRec;
-    bst->FindNext = FindNextRec;
-    bst->FindPrev = FindPrevRec;
-    bst->FindMin = FindMinRec;
-    bst->FindMax = FindMaxRec;
-    return bst;
+    BBST* bbst = (BBST*) malloc(sizeof(BBST));
+    bbst->root = (Node*) calloc(1, sizeof(Node));
+    bbst->Insert = BalInsertRec;
+    bbst->Delete = BalDeleteRec;
+    bbst->FindNext = BalFindNextRec;
+    bbst->FindPrev = BalFindPrevRec;
+    bbst->FindMin = BalFindMinRec;
+    bbst->FindMax = BalFindMaxRec;
+    return bbst;
 }
 
-BST* BSTAllocateIter()
+BBST* BBSTAllocateIter()
 {
-    BST* bst = (BST*) malloc(sizeof(BST));
-    bst->root = (Node*) calloc(1, sizeof(Node));
-    bst->Insert = InsertIter;
-    bst->Delete = DeleteIter;
-    bst->FindNext = FindNextIter;
-    bst->FindPrev = FindPrevIter;
-    bst->FindMin = FindMinIter;
-    bst->FindMax = FindMaxIter;
-    return bst;
+    BBST* bbst = (BBST*) malloc(sizeof(BBST));
+    bbst->root = (Node*) calloc(1, sizeof(Node));
+    bbst->Insert = BalInsertIter;
+    bbst->Delete = BalDeleteIter;
+    bbst->FindNext = BalFindNextIter;
+    bbst->FindPrev = BalFindPrevIter;
+    bbst->FindMin = BalFindMinIter;
+    bbst->FindMax = BalFindMaxIter;
+    return bbst;
 }
 
-void InsertRec(Node* parent, Node* node, int value)
+void BalInsertRec(Node* parent, Node* node, int value)
 {
     //Error Checking
     if(parent == NULL || value == 0)
     {
-        printf("InsertRec: Either NULL parent or 0 value given.\n");
+        printf("BalInsertRec: Either NULL parent or 0 value given.\n");
         return;
     }
 
@@ -64,7 +68,7 @@ void InsertRec(Node* parent, Node* node, int value)
     if(parent->value == 0)
     {
         parent->value = value;
-        printf("InsertRec: Root is %d\n", value);
+        printf("BalInsertRec: Root is %d\n", value);
         free(node);
         node = NULL;
     }
@@ -72,7 +76,7 @@ void InsertRec(Node* parent, Node* node, int value)
     {
         if(parent->rightChild)
         {
-            InsertRec(parent->rightChild, node, value);
+            BalInsertRec(parent->rightChild, node, value);
         }
         else
         {
@@ -84,7 +88,7 @@ void InsertRec(Node* parent, Node* node, int value)
     {
         if(parent->leftChild)
         {
-            InsertRec(parent->leftChild, node, value);
+            BalInsertRec(parent->leftChild, node, value);
         }
         else
         {
@@ -94,13 +98,13 @@ void InsertRec(Node* parent, Node* node, int value)
     }
 }
 
-Node* DeleteRec(BST* bst, Node* node, int value)
+Node* BalDeleteRec(BBST* bbst, Node* node, int value)
 {
     Node* temp;
 
     if(node == NULL || node->value == 0)
     {
-        printf("DeleteRec: Value not found: %d\n", value);
+        printf("BalDeleteRec: Value not found: %d\n", value);
         return NULL;
     }
     
@@ -109,9 +113,9 @@ Node* DeleteRec(BST* bst, Node* node, int value)
         if(node->leftChild == NULL)
         {
             temp = node->rightChild;
-            if(node == bst->root)
+            if(node == bbst->root)
             {
-                bst->root = temp;
+                bbst->root = temp;
             }
             free(node);
             node=NULL;
@@ -120,36 +124,36 @@ Node* DeleteRec(BST* bst, Node* node, int value)
         else if(node->rightChild == NULL)
         {
             temp = node->leftChild;
-            if(node == bst->root)
+            if(node == bbst->root)
             {
-                bst->root = temp;
+                bbst->root = temp;
             }
             free(node);
             node=NULL;
             return temp;
         }
-        temp = FindMinRec(node->leftChild);
+        temp = BalFindMinRec(node->leftChild);
         node->value = temp->value;
-        node->rightChild = DeleteRec(bst, node->rightChild, node->value);
+        node->rightChild = BalDeleteRec(bbst, node->rightChild, node->value);
     } 
     else if(node->value > value)
     {
-        node->leftChild = DeleteRec(bst, node->leftChild, value);
+        node->leftChild = BalDeleteRec(bbst, node->leftChild, value);
     }
     else
     {
-        node->rightChild = DeleteRec(bst, node->rightChild, value);
+        node->rightChild = BalDeleteRec(bbst, node->rightChild, value);
     }
     return node;
 }
 
 /**
- * @brief Helper function for finding the next node by going up the BST.
+ * @brief Helper function for finding the next node by going up the BBST.
  * 
  * @param node  The node needing to be traversed.
  * @return Node* 
  */
-Node* TraverseUpNext(Node* node)
+Node* BalTraverseUpNext(Node* node)
 {
     if(node->parent == NULL)
     {
@@ -163,26 +167,26 @@ Node* TraverseUpNext(Node* node)
     }
     else
     {
-        return TraverseUpNext(node->parent);
+        return BalTraverseUpNext(node->parent);
     }
     
 }
 
-Node* FindNextRec(BST* bst, Node* node)
+Node* BalFindNextRec(BBST* bbst, Node* node)
 {
     Node* parentNode;
 
     //Error Checking
-    if(node == NULL || bst == NULL)
+    if(node == NULL || bbst == NULL)
     {
-        printf("FindNextRec: bst or node given is null\n");
+        printf("BalFindNextRec: bbst or node given is null\n");
         return NULL;
     }
 
     //Check if we cannot go any further right.
-    if(FindMaxRec(bst->root) == node)
+    if(BalFindMaxRec(bbst->root) == node)
     {
-        printf("FindNextRec: Already at rightest node\n");
+        printf("BalFindNextRec: Already at rightest node\n");
         return NULL;
     }
     
@@ -190,11 +194,11 @@ Node* FindNextRec(BST* bst, Node* node)
     //or a right traversal up.
     if(node->rightChild)
     {
-        return FindMinRec(node->rightChild);
+        return BalFindMinRec(node->rightChild);
     }
     else if(node->parent)
     {
-        return TraverseUpNext(node);
+        return BalTraverseUpNext(node);
     }
     else
     {
@@ -204,12 +208,12 @@ Node* FindNextRec(BST* bst, Node* node)
 }
 
 /**
- * @brief Helper function for finding the previous node by going up the BST.
+ * @brief Helper function for finding the previous node by going up the BBST.
  * 
  * @param node The node needing to be traversed.
  * @return Node* 
  */
-Node* TraverseUpPrev(Node* node)
+Node* BalTraverseUpPrev(Node* node)
 {
     if(node->parent == NULL)
     {
@@ -223,24 +227,24 @@ Node* TraverseUpPrev(Node* node)
     }
     else
     {
-        return TraverseUpPrev(node->parent);
+        return BalTraverseUpPrev(node->parent);
     }
     
 }
 
-Node* FindPrevRec(BST* bst, Node* node)
+Node* BalFindPrevRec(BBST* bbst, Node* node)
 {
     //Error Checking
-    if(bst == NULL || node == NULL)
+    if(bbst == NULL || node == NULL)
     {
-        printf("FindPrevRec: bst or node given is null\n");
+        printf("BalFindPrevRec: bbst or node given is null\n");
         return NULL;
     }
 
     //Check if we cannot go any further left.
-    if(FindMinRec(bst->root) == node)
+    if(BalFindMinRec(bbst->root) == node)
     {
-        printf("FindPrevRec: Already at leftest node\n");
+        printf("BalFindPrevRec: Already at leftest node\n");
         return NULL;
     }
     
@@ -248,11 +252,11 @@ Node* FindPrevRec(BST* bst, Node* node)
     //or a left traversal up.
     if(node->leftChild)
     {
-        return FindMaxRec(node->leftChild);
+        return BalFindMaxRec(node->leftChild);
     }
     else if(node->parent)
     {
-        return TraverseUpPrev(node);
+        return BalTraverseUpPrev(node);
     }
     else
     {
@@ -261,7 +265,7 @@ Node* FindPrevRec(BST* bst, Node* node)
     
 }
 
-Node* FindMinRec(Node* node)
+Node* BalFindMinRec(Node* node)
 {
     if(node == NULL)
     {
@@ -275,11 +279,11 @@ Node* FindMinRec(Node* node)
     } 
     else
     {
-        return FindMinRec(node->leftChild);
+        return BalFindMinRec(node->leftChild);
     }
 }
 
-Node* FindMaxRec(Node* node)
+Node* BalFindMaxRec(Node* node)
 {
     if(node == NULL)
     {
@@ -293,12 +297,12 @@ Node* FindMaxRec(Node* node)
     } 
     else
     {
-        return FindMaxRec(node->rightChild);
+        return BalFindMaxRec(node->rightChild);
     }
     
 }
 
-void InsertIter(Node* root, Node* node, int value)
+void BalInsertIter(Node* root, Node* node, int value)
 {
     Node* parent;
     int done = 0;
@@ -307,7 +311,7 @@ void InsertIter(Node* root, Node* node, int value)
     //Error Checking
     if(parent == NULL || value == 0)
     {
-        printf("InsertIter: Either NULL parent or 0 value given.\n");
+        printf("BalInsertIter: Either NULL parent or 0 value given.\n");
         return;
     }
 
@@ -315,7 +319,7 @@ void InsertIter(Node* root, Node* node, int value)
     if(parent->value == 0)
     {
         parent->value = value;
-        printf("InsertIter: Root is %d\n", value);
+        printf("BalInsertIter: Root is %d\n", value);
     }
     else
     {
@@ -352,7 +356,7 @@ void InsertIter(Node* root, Node* node, int value)
                 }
             } else
             {
-                printf("InsertIter: Duplicate value given, did not insert value: %d\n", value);
+                printf("BalInsertIter: Duplicate value given, did not insert value: %d\n", value);
                 done = 1;
             }
             
@@ -361,7 +365,7 @@ void InsertIter(Node* root, Node* node, int value)
     
 }
 
-Node* DeleteIter(BST* bst, Node* node, int value)
+Node* BalDeleteIter(BBST* bbst, Node* node, int value)
 {
     Node* looseRight, *looseLeft, *prev, *next;
     while(node != NULL)
@@ -373,7 +377,7 @@ Node* DeleteIter(BST* bst, Node* node, int value)
                 looseRight = node->rightChild;
                 if(looseRight->leftChild)
                 {
-                    prev = FindPrevIter(bst, node);
+                    prev = BalFindPrevIter(bbst, node);
                     prev->rightChild = looseRight;
                 } 
                 looseRight->leftChild = node->leftChild;
@@ -384,7 +388,7 @@ Node* DeleteIter(BST* bst, Node* node, int value)
                 looseLeft = node->leftChild;
                 if(looseLeft->rightChild)
                 {
-                    next = FindNextIter(bst, node);
+                    next = BalFindNextIter(bbst, node);
                     next->leftChild = looseLeft;
                 }
                 looseLeft->rightChild = node->rightChild;
@@ -400,33 +404,33 @@ Node* DeleteIter(BST* bst, Node* node, int value)
             node = node->leftChild;
         }
     }
-    printf("DeleteIter: Value not found: %d\n", value);
+    printf("BalDeleteIter: Value not found: %d\n", value);
     return NULL;
 }
 
-Node* FindNextIter(BST* bst, Node* node)
+Node* BalFindNextIter(BBST* bbst, Node* node)
 {
     Node* next;
     next = node;
 
     //Error Checking
-    if(bst == NULL || node == NULL)
+    if(bbst == NULL || node == NULL)
     {
-        printf("FindNextIter: bst or node given is null\n");
+        printf("BalFindNextIter: bbst or node given is null\n");
         return NULL;
     }
 
     //Check if we cannot go any further right.
-    if(FindMaxIter(bst->root) == node)
+    if(BalFindMaxIter(bbst->root) == node)
     {
-        printf("FindNextIter: Already at rightest node\n");
+        printf("BalFindNextIter: Already at rightest node\n");
         return NULL;
     }
 
     //The next node is always the min of the right subtree.
     if(next->rightChild)
     {
-        return FindMinIter(next->rightChild);
+        return BalFindMinIter(next->rightChild);
     }
 
     //or a right traversal up.
@@ -437,20 +441,20 @@ Node* FindNextIter(BST* bst, Node* node)
     return next->parent;
 }
 
-Node* FindPrevIter(BST* bst, Node* node)
+Node* BalFindPrevIter(BBST* bbst, Node* node)
 {
     Node* prev;
     prev = node;
 
     //Error Checking
-    if(bst == NULL || node == NULL)
+    if(bbst == NULL || node == NULL)
     {
-        printf("FindNextIter: bst or node given is null\n");
+        printf("BalFindNextIter: bbst or node given is null\n");
         return NULL;
     }
 
     //Check if we cannot go any further left.
-    if(FindMinIter(bst->root) == node)
+    if(BalFindMinIter(bbst->root) == node)
     {
         printf("FindPrev: Already at leftest node\n");
         return NULL;
@@ -459,7 +463,7 @@ Node* FindPrevIter(BST* bst, Node* node)
     //The previous node is always the max of the left subtree.
     if(prev->leftChild)
     {
-        return FindMaxIter(prev->leftChild);
+        return BalFindMaxIter(prev->leftChild);
     }
 
     //or a left traversal up.
@@ -470,7 +474,7 @@ Node* FindPrevIter(BST* bst, Node* node)
     return prev->parent;
 }
 
-Node* FindMinIter(Node* node)
+Node* BalFindMinIter(Node* node)
 {
     Node* minNode;
     minNode = node;
@@ -483,7 +487,7 @@ Node* FindMinIter(Node* node)
     return minNode;
 }
 
-Node* FindMaxIter(Node* node)
+Node* BalFindMaxIter(Node* node)
 {
     Node* maxNode;
     maxNode = node;
