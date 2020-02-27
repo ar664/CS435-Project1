@@ -13,7 +13,6 @@ struct _Node
     Node*       leftChild;
     Node*       rightChild;
     int         value;
-    int         balanceFactor;
 };
 
 #endif
