@@ -4,7 +4,7 @@
 typedef struct _Node Node;
 
 /**
- * @brief Node structure for a BST/BBST
+ * @brief Node structure for a BST/AVL
  * 
  */
 struct _Node
@@ -13,6 +13,7 @@ struct _Node
     Node*       leftChild;
     Node*       rightChild;
     int         value;
+    int         height; 
 };
 
 #endif

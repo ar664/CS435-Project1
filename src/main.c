@@ -3,10 +3,12 @@
 #include <time.h>
 #include <math.h>
 #include <string.h>
+#include <glib.h>
 #include "bst.h"
+#include "avl.h"
 
-#define K 100000
-int randomMap[K] = {0};
+#define K 50000
+GHashTable* hashTable = NULL;
 
 int* sort(int* input, int n)
 {
@@ -69,26 +71,29 @@ int* getRandomArray(int n)
         return NULL;
     }
 
+    if(hashTable == NULL)
+    {
+        hashTable = g_hash_table_new(g_int_hash, g_int_equal);
+    }
+
     randArray = malloc(n*sizeof(int));
 
     //Get a random number each time.
     for(i = 0; i < n; i++)
     {
         randValue = rand() % K;
+        randArray[i] = randValue;
 
         //If random number is already in the map, keep getting one until it's not.
-        while(randomMap[randValue])
+        while(g_hash_table_contains(hashTable, &randArray[i]))
         {
             randValue = rand() % K;
+            randArray[i] = randValue;
         }
         
         //Assign map & values
-        randomMap[randValue] = 1;
-        randArray[i] = randValue;
+        g_hash_table_insert(hashTable, &randArray[i], &randArray[i]);
     }
-
-    //Reset map for further use;
-    memset(randomMap, 0, K*sizeof(int));
 
     return randArray;
 }
@@ -128,6 +133,7 @@ int main(int argc, char** argv)
     int n = 100, i;
     BST* bstIter, *bstRec;
     Node* travIter, *travRec;
+    AVL* avlIter, *avlRec;
     srand(time(0));
 
     randomArray = getRandomArray(n);
@@ -138,7 +144,6 @@ int main(int argc, char** argv)
 
     bstIter = BSTAllocateIter();
     bstRec = BSTAllocateRec();
-    printf("bstIter root is %d\n", bstIter->root->value);
 
     //Insert into both bst versions from randomArray
     for(i = 0; i < n; i++)
@@ -173,6 +178,34 @@ int main(int argc, char** argv)
 
     printf("BST sort: ");
     printArray(bstSorted, n);
+
+    avlIter = AVLAllocateIter();
+    avlRec = AVLAllocateRec();
+
+    for(i = 0; i < n; i++)
+    {
+        avlIter->Insert(avlIter, avlIter->root, NULL, randomArray[i]);
+        avlRec->Insert(avlRec, avlRec->root, NULL, randomArray[i]);
+    }
+
+    travIter = avlIter->root;
+    travRec = avlRec->root;
+
+    for(i = 0; i < n-1; i++)
+    {
+        travIter = avlIter->FindNext(avlIter, travIter);
+        travRec = avlRec->FindNext(avlRec, travRec);
+    }
+
+    printf("Left Most Node: %d or %d\n", travIter->value, travRec->value);
+
+    for(i = 0; i < n-1; i++)
+    {
+        travIter = avlIter->FindPrev(avlIter, travIter);
+        travRec = avlRec->FindPrev(avlRec, travRec);
+    }
+
+    printf("Right Most Node: %d or %d\n", travIter->value, travRec->value);
 
 	return 0;
 }
