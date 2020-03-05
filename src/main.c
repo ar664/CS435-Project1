@@ -173,6 +173,12 @@ int main(int argc, char** argv)
 
     printf("Left Most Node: %d or %d\n", travIter->value, travRec->value);
 
+    for(i = 0; i < n; i++)
+    {
+        bstIter->Delete(bstIter, NULL, randomArray[i]);
+        bstRec->Delete(bstRec, bstRec->root, randomArray[i]);
+    }
+
     //Sort randomArray with sort function.
     bstSorted = sort(randomArray, n);
 

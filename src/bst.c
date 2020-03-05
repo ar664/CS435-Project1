@@ -3,6 +3,8 @@
 #include <math.h>
 #include "bst.h"
 
+Node* DeleteNode(BST* bst, Node* node);
+
 void InsertRec(Node* parent, Node* node, int value);
 Node* DeleteRec(BST* bst, Node* node, int value);
 Node* FindNextRec(BST* bst, Node* node);
@@ -41,6 +43,123 @@ BST* BSTAllocateIter()
     bst->FindMin = FindMinIter;
     bst->FindMax = FindMaxIter;
     return bst;
+}
+
+void CreateRelation(Node* parent, Node* child, int opt)
+{
+    int i;
+    i = 0;
+}
+
+Node* DeleteNode(BST* bst, Node* node)
+{
+    Node* prev, *next, *left, *right, *parent, *current;
+    int i;
+
+    prev = FindPrevIter(bst, node);
+    next = FindNextIter(bst, node);
+    left = node->leftChild;
+    right = node->rightChild;
+    parent = node->parent;
+
+    if(left == NULL && right == NULL)
+    {
+        if(node == bst->root)
+        {
+            node->value = 0;
+            return node;
+        }
+
+        if(parent->value > node->value)
+        {
+            parent->leftChild = NULL;
+        }
+        else
+        {
+            parent->rightChild = NULL;
+        }
+
+        current = parent;
+    }
+    else if(left && right)
+    {
+        if(node == bst->root)
+        {
+            bst->root = prev;
+        }
+
+        if(prev->leftChild)
+        {
+            if(prev->parent->value > prev->value)
+            {
+                prev->parent->leftChild = prev->leftChild;
+            }
+            else
+            {
+                prev->parent->rightChild = prev->leftChild;
+            }
+            prev->leftChild->parent = prev->parent;
+        }
+
+        if(prev->parent != node)
+        {
+            if(prev->parent->value > prev->value)
+            {
+                prev->parent->leftChild = NULL;
+            }
+            else
+            {
+                prev->parent->rightChild = NULL;
+            }
+        }
+
+        prev->rightChild = right;
+        right->parent = prev;
+        prev->parent = parent;
+        current = prev;
+    }
+    else if(right == NULL)
+    {
+        if(node == bst->root)
+        {
+            bst->root = left;
+        }
+
+        if(parent->value > node->value)
+        {
+            parent->leftChild = left;
+        }
+        else
+        {
+            parent->rightChild = left;
+        }
+        
+        left->parent = parent;
+        current = left;
+    }
+    else
+    {
+        if(node == bst->root)
+        {
+            bst->root = right;
+        }
+
+        if(parent->value > node->value)
+        {
+            parent->leftChild = right;
+        }
+        else
+        {
+            parent->rightChild = right;
+        }
+        
+        right->parent = parent;
+        current = right;
+    }
+    
+    free(node);
+    node = NULL;
+    return current; 
 }
 
 void InsertRec(Node* parent, Node* node, int value)
@@ -106,41 +225,16 @@ Node* DeleteRec(BST* bst, Node* node, int value)
     
     if(node->value == value)
     {
-        if(node->leftChild == NULL)
-        {
-            temp = node->rightChild;
-            if(node == bst->root)
-            {
-                bst->root = temp;
-            }
-            free(node);
-            node=NULL;
-            return temp;
-        }
-        else if(node->rightChild == NULL)
-        {
-            temp = node->leftChild;
-            if(node == bst->root)
-            {
-                bst->root = temp;
-            }
-            free(node);
-            node=NULL;
-            return temp;
-        }
-        temp = FindMinRec(node->leftChild);
-        node->value = temp->value;
-        node->rightChild = DeleteRec(bst, node->rightChild, node->value);
+        return DeleteNode(bst, node);
     } 
     else if(node->value > value)
     {
-        node->leftChild = DeleteRec(bst, node->leftChild, value);
+        return DeleteRec(bst, node->leftChild, value);
     }
     else
     {
-        node->rightChild = DeleteRec(bst, node->rightChild, value);
+        return DeleteRec(bst, node->rightChild, value);
     }
-    return node;
 }
 
 /**
@@ -363,41 +457,21 @@ void InsertIter(Node* root, Node* node, int value)
 
 Node* DeleteIter(BST* bst, Node* node, int value)
 {
-    Node* looseRight, *looseLeft, *prev, *next;
-    while(node != NULL)
+    Node* temp;
+    temp = bst->root;
+    while(temp != NULL)
     {
-        if(node->value == value)
+        if(temp->value == value)
         {
-            if(node->rightChild)
-            {
-                looseRight = node->rightChild;
-                if(looseRight->leftChild)
-                {
-                    prev = FindPrevIter(bst, node);
-                    prev->rightChild = looseRight;
-                } 
-                looseRight->leftChild = node->leftChild;
-                //Check Root
-            }
-            else if(node->leftChild)
-            {
-                looseLeft = node->leftChild;
-                if(looseLeft->rightChild)
-                {
-                    next = FindNextIter(bst, node);
-                    next->leftChild = looseLeft;
-                }
-                looseLeft->rightChild = node->rightChild;
-                //Check Root
-            }
-        } 
-        else if(node->value < value)
-        {
-            node = node->rightChild;
+            return DeleteNode(bst, temp);
         }
-        else if(node->value > value)
+        else if(temp->value > value )
         {
-            node = node->leftChild;
+            temp = temp->leftChild;
+        }
+        else
+        {
+            temp = temp->rightChild;
         }
     }
     printf("DeleteIter: Value not found: %d\n", value);

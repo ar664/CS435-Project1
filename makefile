@@ -1,20 +1,20 @@
 IDIR=include
 CC=gcc
-CFLAGS=-I$(IDIR)
+CFLAGS=-I$(IDIR) `pkg-config --cflags glib-2.0`
 
 SDIR=src
 ODIR=obj
 LDIR=lib
 
 #Libs are included without the lib prefix because -l does that for you
-LIBS=-lm
+LIBS=-lm `pkg-config --libs glib-2.0`
 
 #H files go here
-_DEPS = node.h bst.h bbst.h
+_DEPS = node.h bst.h avl.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 #Target object files go here (There basically the c files)
-_OBJ = main.o bst.o bbst.o
+_OBJ = main.o bst.o avl.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 
