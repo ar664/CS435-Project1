@@ -12,12 +12,13 @@ typedef struct _BST BST;
 struct _BST
 {
     Node*       root;
-    void        (*Insert)(Node* root, Node* node, int value);
+    int         traversals;
+    void        (*Insert)(BST* bst, Node* root, Node* node, int value);
     Node*       (*Delete)(BST* bst, Node* node, int value);
     Node*       (*FindNext)(BST* bst, Node* node);
     Node*       (*FindPrev)(BST* bst, Node* node);
-    Node*       (*FindMin)(Node* node);
-    Node*       (*FindMax)(Node* node);
+    Node*       (*FindMin)(BST* bst, Node* node);
+    Node*       (*FindMax)(BST* bst, Node* node);
 };
 
 /**

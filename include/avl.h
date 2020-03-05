@@ -12,12 +12,13 @@ typedef struct _AVL AVL;
 struct _AVL
 {
     Node*       root;
+    int         traversals;
     void        (*Insert)(AVL* avl, Node* root, Node* node, int value);
     Node*       (*Delete)(AVL* avl, Node* node, int value);
     Node*       (*FindNext)(AVL* avl, Node* node);
     Node*       (*FindPrev)(AVL* avl, Node* node);
-    Node*       (*FindMin)(Node* node);
-    Node*       (*FindMax)(Node* node);
+    Node*       (*FindMin)(AVL* avl, Node* node);
+    Node*       (*FindMax)(AVL* avl, Node* node);
 };
 
 #define AVL_MAX_SIZE 12000

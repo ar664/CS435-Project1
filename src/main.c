@@ -30,11 +30,11 @@ int* sort(int* input, int n)
     //Insert array into BST
     for(i = 0; i < n; i++)
     {
-        bst->Insert(bst->root, NULL, input[i]);
+        bst->Insert(bst, bst->root, NULL, input[i]);
     }
 
     //Do a left->right traversal using FindNext
-    current = bst->FindMin(bst->root);
+    current = bst->FindMin(bst, bst->root);
     i = 0;
     while(current != NULL)
     {
@@ -129,7 +129,7 @@ void printArray(int* arr, int n)
 
 int main(int argc, char** argv)
 {
-    int* randomArray, *sortedArray, *bstSorted;
+    int* randomArray, *sortedArray, *bstSorted, *bigArray;
     int n = 100, i;
     BST* bstIter, *bstRec;
     Node* travIter, *travRec;
@@ -148,12 +148,12 @@ int main(int argc, char** argv)
     //Insert into both bst versions from randomArray
     for(i = 0; i < n; i++)
     {
-        bstIter->Insert(bstIter->root, NULL, randomArray[i]);
-        bstRec->Insert(bstRec->root, NULL, randomArray[i]);
+        bstIter->Insert(bstIter, bstIter->root, NULL, randomArray[i]);
+        bstRec->Insert(bstRec, bstRec->root, NULL, randomArray[i]);
     }
 
-    travIter = bstIter->FindMin(bstIter->root);
-    travRec = bstRec->FindMin(bstRec->root);
+    travIter = bstIter->FindMin(bstIter, bstIter->root);
+    travRec = bstRec->FindMin(bstRec, bstRec->root);
 
     //Traverse bsts inOrder
     for(i = 0; i < n-1; i++)
@@ -175,8 +175,8 @@ int main(int argc, char** argv)
 
     for(i = 0; i < n; i++)
     {
-        bstIter->Delete(bstIter, NULL, randomArray[i]);
-        bstRec->Delete(bstRec, bstRec->root, randomArray[i]);
+        // bstIter->Delete(bstIter, NULL, randomArray[i]);
+        // bstRec->Delete(bstRec, bstRec->root, randomArray[i]);
     }
 
     //Sort randomArray with sort function.
@@ -194,8 +194,8 @@ int main(int argc, char** argv)
         avlRec->Insert(avlRec, avlRec->root, NULL, randomArray[i]);
     }
 
-    travIter = avlIter->root;
-    travRec = avlRec->root;
+    travIter = avlIter->FindMin(avlIter, avlIter->root);
+    travRec = avlRec->FindMin(avlRec, avlRec->root);
 
     for(i = 0; i < n-1; i++)
     {
@@ -212,6 +212,29 @@ int main(int argc, char** argv)
     }
 
     printf("Right Most Node: %d or %d\n", travIter->value, travRec->value);
+
+    n = 10000;
+    bigArray = getRandomArray(n);
+
+    //Memory Leak :/
+    avlIter = AVLAllocateIter();
+    avlRec = AVLAllocateRec();
+    bstIter = BSTAllocateIter();
+    bstRec = BSTAllocateRec();
+
+    for(i = 0; i < n; i++)
+    {
+        avlIter->Insert(avlIter, avlIter->root, NULL, bigArray[i]);
+        bstIter->Insert(bstIter, bstIter->root, NULL, bigArray[i]);
+
+        // Just commenting this out so my comp doesn't crash. 
+        // Working with n = 100 version above.
+        // avlRec->Insert(avlRec, avlRec->root, NULL, bigArray[i]);
+        // bstRec->Insert(bstRec, bstRec->root, NULL, bigArray[i]);
+    }
+
+    printf("BSTIter Traversals: %d\n", bstIter->traversals);
+    printf("AVLIter Traversals: %d\n", avlIter->traversals);
 
 	return 0;
 }

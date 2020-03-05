@@ -12,7 +12,7 @@ void RotateRight(AVL* avl, Node* node);
 int GetHeight(Node* leftChild, Node* rightChild);
 
 //Traverse up the parents and recalculate the heights for the nodes
-void UpdateHeights(Node* node);
+void UpdateHeights(AVL* avl, Node* node);
 
 //Balance the trees with rotations
 void BalanceTree(AVL *avl);
@@ -24,15 +24,15 @@ void AVLInsertRec(AVL* avl, Node* parent, Node* node, int value);
 Node* AVLDeleteRec(AVL* avl, Node* node, int value);
 Node* AVLFindNextRec(AVL* avl, Node* node);
 Node* AVLFindPrevRec(AVL* avl, Node* node);
-Node* AVLFindMinRec(Node* node);
-Node* AVLFindMaxRec(Node* node);
+Node* AVLFindMinRec(AVL* avl, Node* node);
+Node* AVLFindMaxRec(AVL* avl, Node* node);
 
 void AVLInsertIter(AVL* avl, Node* root, Node* node, int value);
 Node* AVLDeleteIter(AVL* avl, Node* node, int value);
 Node* AVLFindNextIter(AVL* avl, Node* node);
 Node* AVLFindPrevIter(AVL* avl, Node* node);
-Node* AVLFindMinIter(Node* node);
-Node* AVLFindMaxIter(Node* node);
+Node* AVLFindMinIter(AVL* avl, Node* node);
+Node* AVLFindMaxIter(AVL* avl, Node* node);
 
 AVL* AVLAllocateRec()
 {
@@ -44,6 +44,7 @@ AVL* AVLAllocateRec()
     avl->FindPrev = AVLFindPrevRec;
     avl->FindMin = AVLFindMinRec;
     avl->FindMax = AVLFindMaxRec;
+    avl->traversals = 0;
     return avl;
 }
 
@@ -57,6 +58,7 @@ AVL* AVLAllocateIter()
     avl->FindPrev = AVLFindPrevIter;
     avl->FindMin = AVLFindMinIter;
     avl->FindMax = AVLFindMaxIter;
+    avl->traversals = 0;
     return avl;
 }
 
@@ -81,7 +83,7 @@ int GetHeight(Node* leftChild, Node* rightChild)
     }   
 }
 
-void UpdateHeights(Node* node)
+void UpdateHeights(AVL* avl, Node* node)
 {
     Node* temp;
 
@@ -96,6 +98,7 @@ void UpdateHeights(Node* node)
     {
         temp->height = GetHeight(temp->leftChild, temp->rightChild);
         temp = temp->parent;
+        avl->traversals++;
     }
 }
 
@@ -149,7 +152,7 @@ void RotateLeft(AVL* avl, Node* node)
         rightLeftTree->parent = node;
     }
 
-    UpdateHeights(node);
+    UpdateHeights(avl, node);
 }
 
 void RotateRight(AVL *avl, Node* node)
@@ -202,7 +205,7 @@ void RotateRight(AVL *avl, Node* node)
         leftRightTree->parent = node;
     }
 
-    UpdateHeights(node);
+    UpdateHeights(avl, node);
 }
 
 int CalcBalance(Node* node)
@@ -254,6 +257,7 @@ void BalanceTree(AVL* avl)
             if( abs(CalcBalance(temp->leftChild)) > 1)
             {
                 temp = temp->leftChild;
+                avl->traversals++;
                 continue;
             }
             else if(CalcBalance(temp->leftChild) == -1)
@@ -270,6 +274,7 @@ void BalanceTree(AVL* avl)
             if( abs(CalcBalance(temp->rightChild)) > 1)
             {
                 temp = temp->rightChild;
+                avl->traversals++;
                 continue;
             }
             else if(CalcBalance(temp->rightChild) == 1)
@@ -319,7 +324,7 @@ void AVLInsertRec(AVL* avl, Node* parent, Node* node, int value)
         {
             parent->rightChild = node;
             node->parent = parent;
-            UpdateHeights(node);
+            UpdateHeights(avl, node);
             BalanceTree(avl);
         }
     }
@@ -333,7 +338,7 @@ void AVLInsertRec(AVL* avl, Node* parent, Node* node, int value)
         {
             parent->leftChild = node;
             node->parent = parent;
-            UpdateHeights(node);
+            UpdateHeights(avl, node);
             BalanceTree(avl);
         }
     }
@@ -373,7 +378,7 @@ Node* AVLDeleteRec(AVL* avl, Node* node, int value)
             node=NULL;
             return temp;
         }
-        temp = AVLFindMinRec(node->leftChild);
+        temp = AVLFindMinRec(avl, node->leftChild);
         node->value = temp->value;
         node->rightChild = AVLDeleteRec(avl, node->rightChild, node->value);
     } 
@@ -425,7 +430,7 @@ Node* AVLFindNextRec(AVL* avl, Node* node)
     }
 
     //Check if we cannot go any further right.
-    if(AVLFindMaxRec(avl->root) == node)
+    if(AVLFindMaxRec(avl, avl->root) == node)
     {
         printf("AVLFindNextRec: Already at rightest node\n");
         return NULL;
@@ -435,7 +440,7 @@ Node* AVLFindNextRec(AVL* avl, Node* node)
     //or a right traversal up.
     if(node->rightChild)
     {
-        return AVLFindMinRec(node->rightChild);
+        return AVLFindMinRec(avl, node->rightChild);
     }
     else if(node->parent)
     {
@@ -483,7 +488,7 @@ Node* AVLFindPrevRec(AVL* avl, Node* node)
     }
 
     //Check if we cannot go any further left.
-    if(AVLFindMinRec(avl->root) == node)
+    if(AVLFindMinRec(avl, avl->root) == node)
     {
         printf("AVLFindPrevRec: Already at leftest node\n");
         return NULL;
@@ -493,7 +498,7 @@ Node* AVLFindPrevRec(AVL* avl, Node* node)
     //or a left traversal up.
     if(node->leftChild)
     {
-        return AVLFindMaxRec(node->leftChild);
+        return AVLFindMaxRec(avl, node->leftChild);
     }
     else if(node->parent)
     {
@@ -506,7 +511,7 @@ Node* AVLFindPrevRec(AVL* avl, Node* node)
     
 }
 
-Node* AVLFindMinRec(Node* node)
+Node* AVLFindMinRec(AVL* avl, Node* node)
 {
     if(node == NULL)
     {
@@ -520,11 +525,11 @@ Node* AVLFindMinRec(Node* node)
     } 
     else
     {
-        return AVLFindMinRec(node->leftChild);
+        return AVLFindMinRec(avl, node->leftChild);
     }
 }
 
-Node* AVLFindMaxRec(Node* node)
+Node* AVLFindMaxRec(AVL* avl, Node* node)
 {
     if(node == NULL)
     {
@@ -538,7 +543,7 @@ Node* AVLFindMaxRec(Node* node)
     } 
     else
     {
-        return AVLFindMaxRec(node->rightChild);
+        return AVLFindMaxRec(avl, node->rightChild);
     }
     
 }
@@ -576,12 +581,13 @@ void AVLInsertIter(AVL* avl, Node* root, Node* node, int value)
                 if(parent->leftChild)
                 {
                     parent = parent->leftChild;
+                    avl->traversals++;
                 }
                 else
                 {
                     parent->leftChild = node;
                     node->parent = parent;
-                    UpdateHeights(node);
+                    UpdateHeights(avl, node);
                     BalanceTree(avl);
                     done = 1;
                 }
@@ -590,12 +596,13 @@ void AVLInsertIter(AVL* avl, Node* root, Node* node, int value)
                 if(parent->rightChild)
                 {
                     parent = parent->rightChild;
+                    avl->traversals++;
                 }
                 else
                 {
                     parent->rightChild = node;
                     node->parent = parent;
-                    UpdateHeights(node);
+                    UpdateHeights(avl, node);
                     BalanceTree(avl);
                     done = 1;
                 }
@@ -666,7 +673,7 @@ Node* AVLFindNextIter(AVL* avl, Node* node)
     }
 
     //Check if we cannot go any further right.
-    if(AVLFindMaxIter(avl->root) == node)
+    if(AVLFindMaxIter(avl, avl->root) == node)
     {
         printf("AVLFindNextIter: Already at rightest node\n");
         return NULL;
@@ -675,13 +682,14 @@ Node* AVLFindNextIter(AVL* avl, Node* node)
     //The next node is always the min of the right subtree.
     if(next->rightChild)
     {
-        return AVLFindMinIter(next->rightChild);
+        return AVLFindMinIter(avl, next->rightChild);
     }
 
     //or a right traversal up.
     while(next->parent->value < next->value)
     {
         next = next->parent;
+        avl->traversals++;
     }
     return next->parent;
 }
@@ -699,7 +707,7 @@ Node* AVLFindPrevIter(AVL* avl, Node* node)
     }
 
     //Check if we cannot go any further left.
-    if(AVLFindMinIter(avl->root) == node)
+    if(AVLFindMinIter(avl, avl->root) == node)
     {
         printf("FindPrev: Already at leftest node\n");
         return NULL;
@@ -708,18 +716,19 @@ Node* AVLFindPrevIter(AVL* avl, Node* node)
     //The previous node is always the max of the left subtree.
     if(prev->leftChild)
     {
-        return AVLFindMaxIter(prev->leftChild);
+        return AVLFindMaxIter(avl, prev->leftChild);
     }
 
     //or a left traversal up.
     while(prev->parent->value > prev->value)
     {
         prev = prev->parent;
+        avl->traversals++;
     }
     return prev->parent;
 }
 
-Node* AVLFindMinIter(Node* node)
+Node* AVLFindMinIter(AVL* avl, Node* node)
 {
     Node* minNode;
     minNode = node;
@@ -728,11 +737,12 @@ Node* AVLFindMinIter(Node* node)
     while(minNode->leftChild)
     {
         minNode = minNode->leftChild;
+        avl->traversals++;
     }
     return minNode;
 }
 
-Node* AVLFindMaxIter(Node* node)
+Node* AVLFindMaxIter(AVL* avl, Node* node)
 {
     Node* maxNode;
     maxNode = node;
@@ -741,6 +751,7 @@ Node* AVLFindMaxIter(Node* node)
     while(maxNode->rightChild)
     {
         maxNode = maxNode->rightChild;
+        avl->traversals++;
     }
     return maxNode;
 }
