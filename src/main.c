@@ -236,5 +236,21 @@ int main(int argc, char** argv)
     printf("BSTIter Traversals: %d\n", bstIter->traversals);
     printf("AVLIter Traversals: %d\n", avlIter->traversals);
 
+    //More memory leak :/
+    avlIter = AVLAllocateIter();
+    bstIter = BSTAllocateIter();
+
+    sortedArray = getSortedArray(n);
+
+    for(i = 0; i < n; i++)
+    {
+        avlIter->Insert(avlIter, avlIter->root, NULL, sortedArray[i]);
+        bstIter->Insert(bstIter, bstIter->root, NULL, sortedArray[i]);
+    }
+
+    printf("Sorted Input:\n");
+    printf("BSTIter Traversals: %d\n", bstIter->traversals);
+    printf("AVLIter Traversals: %d\n", avlIter->traversals);
+
 	return 0;
 }
